@@ -14,7 +14,8 @@ Devices = sqlalchemy.Table(
     sqlalchemy.Column("latitude", sqlalchemy.Float),
     sqlalchemy.Column("longitude", sqlalchemy.Float),
     sqlalchemy.Column("max_height", sqlalchemy.Float, nullable = False),
-    sqlalchemy.Column("last_emptied", sqlalchemy.DateTime, nullable = False)
+    sqlalchemy.Column("last_emptied", sqlalchemy.DateTime, nullable = False),
+    sqlalchemy.Column("last_updated", sqlalchemy.DateTime, nullable = False)
 )
 
 DataPoints = sqlalchemy.Table(
