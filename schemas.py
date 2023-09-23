@@ -28,7 +28,6 @@ class DataPoint(BaseModel):
 
 class BinInfo(DataPoint):
     bid: int
-    identifier: str
     tags: list[str]
     name: str
     last_emptied: datetime
@@ -62,7 +61,7 @@ class UpdateBinInfo(BaseModel):
 
 
 class CalibrateBin(BaseModel):
-    identifier: str
+    bid: int
     max_height: float
 
 
@@ -71,5 +70,10 @@ class UpdateImage(BaseModel):
     image: str
 
 
-class PostBinData(DataPoint):
-    indentifier: str
+class PostData(DataPoint):
+    bid: int
+    gas: float
+    weight: float
+    height: float
+    humidity_inside: float
+    humidity_outside: float
