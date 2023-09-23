@@ -70,7 +70,7 @@ class UpdateImage(BaseModel):
     image: str
 
 
-class PostBinData(DataPoint):
+class PostData(DataPoint):
     bid: int
     gas: float
     weight: float
