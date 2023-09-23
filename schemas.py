@@ -72,4 +72,9 @@ class UpdateImage(BaseModel):
 
 
 class PostBinData(DataPoint):
-    indentifier: str
+    bid: int
+    gas: float
+    weight: float
+    height: float
+    humidity_inside: float
+    humidity_outside: float
