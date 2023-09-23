@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import databases
 import config as cfg 
-
+from crud import hardware, interface
+import schemas
 DATABASE_URL = f"postgresql://{cfg.DATABASE_USERNAME}:{cfg.DATABASE_PASSWORD}@{cfg.DATABASE_HOST}:5432/{cfg.DATABASE_NAME}"
 db = databases.Database(DATABASE_URL)
 
@@ -24,6 +25,22 @@ async def startup():
 async def shutdown():
     await db.disconnect()
 
-@app.get("/")
-async def root():
-    return {"message": "Unused route"}
+@app.put("/bin_info")
+async def update_bin_info(info: schemas.UpdateBinInfo):
+    pass
+
+@app.get("/bid/{identifier}")
+async def get_bid(identifier: int):
+    pass
+
+@app.put("/calibrate")
+async def calibrate(calibrate_bin: schemas.CalibrateBin):
+    pass
+
+@app.post("data")
+async def post_data(data_point: schemas.PostBinData):
+    pass
+
+@app.put("/image")
+async def update_image(update_image: schemas.UpdateImage):
+    pass
