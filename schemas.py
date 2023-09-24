@@ -70,10 +70,11 @@ class UpdateImage(BaseModel):
     image: str
 
 
-class PostData(DataPoint):
+class PostData(BaseModel):
     bid: int
     gas: float
     weight: float
     height: float
     humidity_inside: float
     humidity_outside: float
+    timestamp: Optional[datetime] = None
