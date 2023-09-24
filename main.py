@@ -30,16 +30,16 @@ async def update_bin_info(info: schemas.UpdateBinInfo):
     pass
 
 @app.get("/bid/{identifier}")
-async def get_bid(identifier: int):
-    pass
+async def get_bid(identifier: str):
+    return await hardware.get_bid(db, identifier=identifier)
 
 @app.put("/calibrate")
 async def calibrate(calibrate_bin: schemas.CalibrateBin):
-    pass
+    return await hardware.calibrate(db, calibrate_bin = calibrate_bin)
 
-@app.post("data")
-async def post_data(data_point: schemas.PostBinData):
-    pass
+@app.post("/data")
+async def post_data(data: schemas.PostData):
+    return await hardware.post_data(db, data=data)
 
 @app.put("/image")
 async def update_image(update_image: schemas.UpdateImage):
