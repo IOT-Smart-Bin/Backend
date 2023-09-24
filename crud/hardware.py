@@ -28,14 +28,15 @@ async def get_bid(db, identifier: str):
         return {"bid": res}
 
 async def calibrate(db, calibrate_bin:schemas.CalibrateBin):
+    time = datetime.now()
     query = update(Devices).where(Devices.c.bid == calibrate_bin.bid).values({
-        Devices.c.max_height: calibrate_bin.max_height
+        "max_height": calibrate_bin.max_height,
+        "last_updated": time,
+        "last_emptied": time
     })
     res = await db.execute(query = query)
-    if res is not None:
-        return
-    else:
-        raise HTTPException(status_code=404, detail={"error_code":"1", "message":"The device with the bid doesn't exist in the table"})
+    return
+    
 
 async def post_data(db, data:schemas.PostData):
     time = datetime.now()
