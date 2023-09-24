@@ -3,6 +3,7 @@ import schemas
 from sqlalchemy import update, select, insert
 from models import Devices, DataPoints
 from datetime import datetime
+from functions import check_bid
 
 async def get_bid(db, identifier: str):
     query = select([Devices.c.bid]).where(Devices.c.identifier == identifier)
@@ -29,6 +30,9 @@ async def get_bid(db, identifier: str):
 
 async def calibrate(db, calibrate_bin:schemas.CalibrateBin):
     time = datetime.now()
+    res = await check_bid(db, calibrate_bin.bid)
+    if not res:
+        raise HTTPException(status_code=404, detail={"error_code":"1", "message":"The device with the bid doesn't exist in the table"})
     query = update(Devices).where(Devices.c.bid == calibrate_bin.bid).values({
         "max_height": calibrate_bin.max_height,
         "last_updated": time,
