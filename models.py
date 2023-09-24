@@ -9,7 +9,7 @@ Devices = sqlalchemy.Table(
     metadata,
     sqlalchemy.Column("bid", sqlalchemy.Integer, primary_key = True, autoincrement = True),
     sqlalchemy.Column("identifier", sqlalchemy.Text, unique = True, nullable = False),
-    sqlalchemy.Column("name", sqlalchemy.Text, unique = True, nullable = False),
+    sqlalchemy.Column("name", sqlalchemy.Text, nullable = False),
     sqlalchemy.Column("image", sqlalchemy.Text),
     sqlalchemy.Column("latitude", sqlalchemy.Float),
     sqlalchemy.Column("longitude", sqlalchemy.Float),
