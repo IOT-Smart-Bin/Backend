@@ -44,3 +44,19 @@ async def post_data(data: schemas.PostData):
 @app.put("/image")
 async def update_image(update_image: schemas.UpdateImage):
     return await interface.update_image(db, update_image)
+
+@app.post("/search")
+async def search_bins(search_criteria: schemas.SearchBin):
+    return await interface.search(db, search_criteria)
+
+@app.post("/bins")
+async def search_bins(bid_list: list[int]):
+    return await interface.bins(db, bid_list)
+
+@app.post("/locations")
+async def search_bins(bid_list: list[int]):
+    return await interface.locations(db, bid_list)
+
+@app.post("/histories")
+async def search_bins(bin_info: schemas.GetBinHistories):
+    return await interface.histories(db, bin_info)

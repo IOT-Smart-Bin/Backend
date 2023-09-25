@@ -50,7 +50,7 @@ class SearchBin(BaseModel):
 
 class GetBinHistories(BaseModel):
     bid: int
-    start_date: datetime
+    start_date: str
 
 
 class UpdateBinInfo(BaseModel):
