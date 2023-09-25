@@ -83,7 +83,6 @@ async def get_tags(db, bid: int):
 
     return [tag["name"] for tag in tags_list]
     
-
 async def search(db, search_criteria: schemas.SearchBin):
     search_result = []
 
@@ -92,7 +91,6 @@ async def search(db, search_criteria: schemas.SearchBin):
 
     try:
         query = common_bin_query.where(Devices.c.name.ilike(f"%{search_criteria.name}%"))
-
         results = await db.fetch_all(query)
 
         for result in results:
@@ -106,36 +104,33 @@ async def search(db, search_criteria: schemas.SearchBin):
                     "timestamp": result[DataPoints.c.timestamp],
                     "gas": result[DataPoints.c.gas],
                     "weight": result[DataPoints.c.weight],
-                    "height": result[DataPoints.c.height],
+                    "capacity": int(result[DataPoints.c.height] / result[Devices.c.max_height] * 100),
                     "humidity_inside": result[DataPoints.c.humidity_inside],
                     "humidity_outside": result[DataPoints.c.humidity_outside],
                 }
 
             # Create a new dictionary with additional information
-            result_dict = {
+            bin_info = {
                 "bid": result[Devices.c.bid],
-                "identifier": result[Devices.c.identifier],
                 "name": result[Devices.c.name],
                 "image": result[Devices.c.image],
                 "location": {
-                    "lat": result[Devices.c.latitude],
-                    "long": result[Devices.c.longitude],
+                    "latitude": result[Devices.c.latitude],
+                    "longitude": result[Devices.c.longitude],
                 },
-                "max_height": result[Devices.c.max_height],
                 "last_emptied": result[Devices.c.last_emptied],
                 "last_updated": result[Devices.c.last_updated],
                 "tags": tag_names,
-                "data_points": data_points,
+                "latest_data_point": data_points
             }
 
-            search_result.append(result_dict)
+            search_result.append(schemas.BinInfo(**bin_info))
 
     except Exception as e:
         print(f"Database error: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error while executing the query.")
 
     return search_result
-
 
 async def bins(db, bid_list: list[int]):
     bin_info_list = []
@@ -145,7 +140,6 @@ async def bins(db, bid_list: list[int]):
 
     try:
         query = common_bin_query.where(Devices.c.bid.in_(bid_list))
-
         results = await db.fetch_all(query)
 
         for result in results:
@@ -159,29 +153,27 @@ async def bins(db, bid_list: list[int]):
                     "timestamp": result[DataPoints.c.timestamp],
                     "gas": result[DataPoints.c.gas],
                     "weight": result[DataPoints.c.weight],
-                    "height": result[DataPoints.c.height],
+                    "capacity": int(result[DataPoints.c.height] / result[Devices.c.max_height] * 100),
                     "humidity_inside": result[DataPoints.c.humidity_inside],
                     "humidity_outside": result[DataPoints.c.humidity_outside],
                 }
 
             # Create a new dictionary with additional information
-            result_dict = {
+            bin_info = {
                 "bid": result[Devices.c.bid],
-                "identifier": result[Devices.c.identifier],
                 "name": result[Devices.c.name],
                 "image": result[Devices.c.image],
                 "location": {
-                    "lat": result[Devices.c.latitude],
-                    "long": result[Devices.c.longitude],
+                    "latitude": result[Devices.c.latitude],
+                    "longitude": result[Devices.c.longitude],
                 },
-                "max_height": result[Devices.c.max_height],
                 "last_emptied": result[Devices.c.last_emptied],
                 "last_updated": result[Devices.c.last_updated],
                 "tags": tag_names,
-                "data_points": data_points,
+                "latest_data_point": data_points
             }
 
-            bin_info_list.append(result_dict)
+            bin_info_list.append(schemas.BinInfo(**bin_info))
 
     except Exception as e:
         print(f"Database error: {str(e)}")
@@ -197,7 +189,6 @@ async def locations(db, bid_list: list[int]):
 
     try:
         query = select(Devices).where(Devices.c.bid.in_(bid_list))
-
         results = await db.fetch_all(query)
 
         for result in results:
@@ -208,21 +199,19 @@ async def locations(db, bid_list: list[int]):
                 "bid": result[Devices.c.bid],
                 "name": result[Devices.c.name],
                 "location": {
-                    "lat": result[Devices.c.latitude],
-                    "long": result[Devices.c.longitude],
+                    "latitude": result[Devices.c.latitude],
+                    "longitude": result[Devices.c.longitude],
                 },
                 "tags": tag_names,
             }
 
-            bin_location_list.append(result_dict)
+            bin_location_list.append(schemas.BinMapInfo(**result_dict))
 
     except Exception as e:
         print(f"Database error: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error while executing the query.")
 
     return bin_location_list
-
-from datetime import datetime
 
 async def histories(db, options: schemas.GetBinHistories):
     data_points = []
@@ -232,7 +221,7 @@ async def histories(db, options: schemas.GetBinHistories):
 
     try:
         # Convert the start_date ISO string to a datetime object
-        start_date = datetime.fromisoformat(options.start_date)
+        start_date = options.start_date
 
         # Get the current datetime
         current_datetime = datetime.now()
@@ -251,20 +240,20 @@ async def histories(db, options: schemas.GetBinHistories):
 
         results = await db.fetch_all(query)
 
-        for result in results:
-            # Convert the timestamp to the desired format
-            timestamp = result[DataPoints.c.timestamp].strftime("%Y-%m-%dT%H:%M:%S.%f")
+        query = select(Devices).where(Devices.c.bid == options.bid)
+        bin_info_results = await db.fetch_one(query)
 
+        for result in results:
             result_dict = {
-                "timestamp": timestamp,
+                "timestamp": result[DataPoints.c.timestamp],
                 "gas": result[DataPoints.c.gas],
                 "weight": result[DataPoints.c.weight],
-                "height": result[DataPoints.c.height],
+                "capacity": int(result[DataPoints.c.height] / bin_info_results[Devices.c.max_height] * 100),
                 "humidity_inside": result[DataPoints.c.humidity_inside],
                 "humidity_outside": result[DataPoints.c.humidity_outside],
             }
 
-            data_points.append(result_dict)
+            data_points.append(schemas.DataPoint(**result_dict))
 
     except Exception as e:
         print(f"Database error: {str(e)}")

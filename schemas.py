@@ -26,7 +26,7 @@ class DataPoint(BaseModel):
         from_attributes = True
 
 
-class BinInfo(DataPoint):
+class BinInfo(BaseModel):
     bid: int
     tags: list[str]
     name: str
@@ -34,6 +34,7 @@ class BinInfo(DataPoint):
     last_updated: datetime
     location: Location
     image: Optional[str] = None
+    latest_data_point: Optional[DataPoint] = None
 
 
 class BinMapInfo(BaseModel):
@@ -50,7 +51,7 @@ class SearchBin(BaseModel):
 
 class GetBinHistories(BaseModel):
     bid: int
-    start_date: str
+    start_date: datetime
 
 
 class UpdateBinInfo(BaseModel):
