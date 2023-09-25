@@ -112,7 +112,7 @@ async def search(db, search_criteria: schemas.SearchBin):
                 }
 
             # Create a new dictionary with additional information
-            result_with_tags = {
+            result_dict = {
                 "bid": result[Devices.c.bid],
                 "identifier": result[Devices.c.identifier],
                 "name": result[Devices.c.name],
@@ -128,7 +128,7 @@ async def search(db, search_criteria: schemas.SearchBin):
                 "data_points": data_points,
             }
 
-            search_result.append(result_with_tags)
+            search_result.append(result_dict)
 
     except Exception as e:
         print(f"Database error: {str(e)}")
@@ -165,7 +165,7 @@ async def bins(db, bid_list: list[int]):
                 }
 
             # Create a new dictionary with additional information
-            result_with_tags = {
+            result_dict = {
                 "bid": result[Devices.c.bid],
                 "identifier": result[Devices.c.identifier],
                 "name": result[Devices.c.name],
@@ -181,7 +181,7 @@ async def bins(db, bid_list: list[int]):
                 "data_points": data_points,
             }
 
-            bin_info_list.append(result_with_tags)
+            bin_info_list.append(result_dict)
 
     except Exception as e:
         print(f"Database error: {str(e)}")
@@ -204,7 +204,7 @@ async def locations(db, bid_list: list[int]):
             tag_names = await get_tags(db, result[Devices.c.bid])
 
             # Create a new dictionary with additional information
-            result_with_tags = {
+            result_dict = {
                 "bid": result[Devices.c.bid],
                 "name": result[Devices.c.name],
                 "location": {
@@ -214,7 +214,7 @@ async def locations(db, bid_list: list[int]):
                 "tags": tag_names,
             }
 
-            bin_location_list.append(result_with_tags)
+            bin_location_list.append(result_dict)
 
     except Exception as e:
         print(f"Database error: {str(e)}")
