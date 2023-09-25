@@ -23,7 +23,7 @@ class DataPoint(BaseModel):
     humidity_outside: float
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class BinInfo(DataPoint):
@@ -50,7 +50,7 @@ class SearchBin(BaseModel):
 
 class GetBinHistories(BaseModel):
     bid: int
-    start_date: datetime
+    start_date: str
 
 
 class UpdateBinInfo(BaseModel):
