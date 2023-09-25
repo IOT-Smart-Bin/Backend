@@ -174,6 +174,8 @@ async def locations(db, bid_list: list[int]):
 
     return bin_location_list
 
+from datetime import datetime
+
 async def histories(db, options: schemas.GetBinHistories):
     data_points = []
 
@@ -182,7 +184,7 @@ async def histories(db, options: schemas.GetBinHistories):
 
     try:
         # Convert the start_date ISO string to a datetime object
-        start_date = datetime.strptime(options.start_date, "%Y-%m-%d %H:%M:%S.%f")
+        start_date = datetime.fromisoformat(options.start_date)
 
         # Get the current datetime
         current_datetime = datetime.now()
@@ -202,8 +204,8 @@ async def histories(db, options: schemas.GetBinHistories):
         results = await db.fetch_all(query)
 
         for result in results:
-            # Convert the timestamp (just in case)
-            timestamp = result[DataPoints.c.timestamp].strftime("%Y-%m-%d %H:%M:%S.%f")
+            # Convert the timestamp to the desired format
+            timestamp = result[DataPoints.c.timestamp].strftime("%Y-%m-%dT%H:%M:%S.%f")
 
             result_dict = {
                 "timestamp": timestamp,
@@ -221,6 +223,7 @@ async def histories(db, options: schemas.GetBinHistories):
         raise HTTPException(status_code=500, detail="Internal server error while executing the query.")
 
     return data_points
+
 
 
 
