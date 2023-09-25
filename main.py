@@ -27,7 +27,7 @@ async def shutdown():
 
 @app.put("/bin_info")
 async def update_bin_info(info: schemas.UpdateBinInfo):
-    pass
+    return await interface.update_bin_info(db, info=info)
 
 @app.get("/bid/{identifier}")
 async def get_bid(identifier: str):
@@ -43,4 +43,4 @@ async def post_data(data: schemas.PostData):
 
 @app.put("/image")
 async def update_image(update_image: schemas.UpdateImage):
-    pass
+    return await interface.update_image(db, update_image)
