@@ -86,7 +86,7 @@ async def get_tags(db, bid: int):
 async def search(db, search_criteria: schemas.SearchBin):
     search_result = []
 
-    if len(search_criteria.name) == 0:
+    if search_criteria.name is None or len(search_criteria.name) == 0:
         return search_result
 
     try:
