@@ -54,11 +54,12 @@ async def update_bin_info(db, info:schemas.UpdateBinInfo):
     await db.execute(query)
 
 async def update_image(db, updated_image: schemas.UpdateImage):
+    image = updated_image.image.split(',')[1]
     res = await check_bid(db, updated_image.bid)
     if not res:
         raise HTTPException(status_code=404, detail={"error_code":"1", "message":"The device with the bid doesn't exist in the table"})
     bucket_name = 'smartbinbucket-ice'
-    binary_data = base64.b64decode(updated_image.image)
+    binary_data = base64.b64decode(image)
     image_stream = BytesIO(binary_data)
     image_format = imghdr.what(None, h=binary_data)
     if image_format:
