@@ -21,6 +21,7 @@ class DataPoint(BaseModel):
     capacity: int
     humidity_inside: float
     humidity_outside: float
+    temperature: float
 
     class Config:
         from_attributes = True
@@ -78,4 +79,5 @@ class PostData(BaseModel):
     height: float
     humidity_inside: float
     humidity_outside: float
+    temperature: float
     timestamp: Optional[datetime] = None

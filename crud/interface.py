@@ -18,7 +18,7 @@ common_bin_subquery = (
 )
 
 common_bin_query = (
-    select([Devices, DataPoints.c.timestamp, DataPoints.c.gas, DataPoints.c.weight, DataPoints.c.height, DataPoints.c.humidity_inside, DataPoints.c.humidity_outside])
+    select([Devices, DataPoints.c.timestamp, DataPoints.c.gas, DataPoints.c.weight, DataPoints.c.height, DataPoints.c.humidity_inside, DataPoints.c.humidity_outside, DataPoints.c.temperature])
     .outerjoin(
         common_bin_subquery,
         common_bin_subquery.c.bid == Devices.c.bid,
@@ -108,6 +108,7 @@ async def search(db, search_criteria: schemas.SearchBin):
                     "capacity": int(result[DataPoints.c.height] / result[Devices.c.max_height] * 100),
                     "humidity_inside": result[DataPoints.c.humidity_inside],
                     "humidity_outside": result[DataPoints.c.humidity_outside],
+                    "temperature": result[DataPoints.c.temperature]
                 }
 
             # Create a new dictionary with additional information
@@ -157,6 +158,7 @@ async def bins(db, bid_list: list[int]):
                     "capacity": int(result[DataPoints.c.height] / result[Devices.c.max_height] * 100),
                     "humidity_inside": result[DataPoints.c.humidity_inside],
                     "humidity_outside": result[DataPoints.c.humidity_outside],
+                    "temperature": result[DataPoints.c.temperature]
                 }
 
             # Create a new dictionary with additional information
@@ -252,6 +254,7 @@ async def histories(db, options: schemas.GetBinHistories):
                 "capacity": int(result[DataPoints.c.height] / bin_info_results[Devices.c.max_height] * 100),
                 "humidity_inside": result[DataPoints.c.humidity_inside],
                 "humidity_outside": result[DataPoints.c.humidity_outside],
+                "temperature": result[DataPoints.c.temperature]
             }
 
             data_points.append(schemas.DataPoint(**result_dict))

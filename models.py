@@ -26,6 +26,7 @@ DataPoints = sqlalchemy.Table(
     sqlalchemy.Column("gas", sqlalchemy.Float, nullable = False),
     sqlalchemy.Column("weight", sqlalchemy.Float, nullable = False),
     sqlalchemy.Column("height", sqlalchemy.Float, nullable = False),
+    sqlalchemy.Column("temperature", sqlalchemy.Float, nullable = False),
     sqlalchemy.Column("humidity_inside", sqlalchemy.Float, nullable = False),
     sqlalchemy.Column("humidity_outside", sqlalchemy.Float, nullable = False),
 )
