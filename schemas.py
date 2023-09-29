@@ -59,7 +59,7 @@ class UpdateBinInfo(BaseModel):
     bid: int
     location: Optional[Location]
     name: str
-    tags: list[str]
+    tags: Optional[list[str]] = None
 
 
 class CalibrateBin(BaseModel):

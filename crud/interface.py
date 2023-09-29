@@ -44,14 +44,15 @@ async def update_bin_info(db, info:schemas.UpdateBinInfo):
         "longitude": info.location.longitude
     })
     await db.execute(query)
-    tags = [{"name":tag} for tag in info.tags]
-    query = insert(Tags).values(tags).on_conflict_do_nothing()
-    await db.execute(query)
     query = delete(DevicesTags).where(DevicesTags.c.bid == bid)
     await db.execute(query)
-    tags = [{"bid":bid,"name":tag} for tag in info.tags]
-    query = insert(DevicesTags).values(tags).on_conflict_do_nothing()
-    await db.execute(query)
+    if info.tags is not None:
+        tags = [{"name":tag} for tag in info.tags]
+        query = insert(Tags).values(tags).on_conflict_do_nothing()
+        await db.execute(query)
+        tags = [{"bid":bid,"name":tag} for tag in info.tags]
+        query = insert(DevicesTags).values(tags).on_conflict_do_nothing()
+        await db.execute(query)
 
 async def update_image(db, updated_image: schemas.UpdateImage):
     image = updated_image.image.split(',')[1]
