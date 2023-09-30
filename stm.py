@@ -1,9 +1,10 @@
 import socket
 import threading
 
-HOST = "127.0.0.1"
-PORT = 5678
+HOSTNAME = socket.gethostname()
 
+HOST = socket.gethostbyname(HOSTNAME)
+PORT = 5678
 
 def handle_client(client_socket, client_address):
     try:
