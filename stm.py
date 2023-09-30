@@ -22,9 +22,16 @@ def handle_client(client_socket, client_address):
 
             request = request.decode("utf-8")
 
+            # Endpoints / Methods
             if request.lower() == "close":
                 client_socket.send("closed".encode("utf-8"))
                 break
+            
+            if request.lower() == "get_bid":
+                # If the request is "get_bid," expect to receive an "identifier"
+                identifier = client_socket.recv(1024).decode("utf-8")
+                print(f"Received identifier from {client_address}: {identifier}")
+                # Perform the action related to "get_bid" using the identifier
 
             print(f"Received from {client_address}: {request}")
 
