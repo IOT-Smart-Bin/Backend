@@ -1,19 +1,59 @@
 import socket
+import threading
 
-hostname=socket.gethostname()
-server=socket.gethostbyname(hostname)
-port = 5678
-if __name__ == "__main__":
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+HOST = "127.0.0.1"
+PORT = 5678
 
+
+def handle_client(client_socket, client_address):
     try:
-        s.bind((server, port))
-    except socket.error as e:
-        print(str(e))
+        while True:
+            request = client_socket.recv(1024)
 
-    s.listen(2)
-    print("Waiting for a connection, Server Started")
+            # TL;DR: Send "close" before termination connection.
+
+            # This catches if the client or server unexpectedly closes the socket connection, exit the loop
+            # To avoid this happening, make sure that the client and server are in sync on when to close the connection.
+            # If we want to avoid "[WinError 10053] An established connection was aborted by the software in your host machine," use the code below
+
+            # if not request:
+            #     break
+
+            request = request.decode("utf-8")
+
+            if request.lower() == "close":
+                client_socket.send("closed".encode("utf-8"))
+                break
+
+            print(f"Received from {client_address}: {request}")
+
+            response = "accepted".encode("utf-8")
+            client_socket.send(response)
+    except ConnectionResetError:
+        print(f"Connection to {client_address} reset by the client.")
+    except Exception as e:
+        print(f"An error occurred with Client {client_address}: {str(e)}")
+    finally:
+        client_socket.close()
+        print(f"Connection to {client_address} closed")
+
+
+def run_server():
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind((HOST, PORT))
+    server.listen(5)
+    print(f"Listening on {HOST}:{PORT}")
 
     while True:
-        conn, addr = s.accept()
-        
+        client_socket, client_address = server.accept()
+        print(
+            f"Accepted connection from {client_address[0]}:{client_address[1]}")
+
+        # Create a new thread to handle the client
+        client_thread = threading.Thread(
+            target=handle_client, args=(client_socket, client_address))
+        client_thread.start()
+
+
+if __name__ == "__main__":
+    run_server()
