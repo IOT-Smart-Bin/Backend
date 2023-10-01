@@ -6,13 +6,13 @@ HOSTNAME = socket.gethostname()
 
 HOST = socket.gethostbyname(HOSTNAME)
 PORT = 5678
-URL = '13.229.60.73:8000/'
+URL = 'http://13.229.60.73:8000'
 
 
 def handle_client(client_socket, client_address):
     try:
         while True:
-            request = client_socket.recv(1024)
+            endpoint = client_socket.recv(1024)
 
             # TL;DR: Send "close" before termination connection.
 
@@ -20,59 +20,44 @@ def handle_client(client_socket, client_address):
             # To avoid this happening, make sure that the client and server are in sync on when to close the connection.
             # If we want to avoid "[WinError 10053] An established connection was aborted by the software in your host machine," use the code below
 
-            if not request:
+            if not endpoint:
                 pass
 
-            request = request.decode("utf-8")
+            endpoint = endpoint.decode("utf-8")
 
             # get_bid
-            if request.lower() == "get_bid":
+            if endpoint.lower() == "get_bid":
                 response = "accepted".encode("utf-8")
                 client_socket.send(response)
 
-                # Wait for request body from the client
-                while True:
-                    request = client_socket.recv(1024)
-                    request = request.decode("utf-8")
+                request_body = client_socket.recv(1024)
+                formatted_request_body = request_body.decode("utf-8")
 
-                    # Process the request
-                    if request is not None:
-                        get_bid(client_socket, request)
-                        break
+                get_bid(client_socket, formatted_request_body)
 
             # calibrate
-            if request.lower() == "calibrate":
+            if endpoint.lower() == "calibrate":
                 response = "accepted".encode("utf-8")
                 client_socket.send(response)
 
-                # Wait for request body from the client
-                while True:
-                    request = client_socket.recv(1024)
-                    request = request.decode("utf-8")
+                request_body = client_socket.recv(1024)
+                formatted_request_body = request_body.decode(
+                    "utf-8").split(',')
 
-                    # Process the request
-                    if request is not None:
-                        request_body = request.split(',')
-                        calibrate(client_socket, request_body)
-                        break
+                calibrate(client_socket, formatted_request_body)
 
             # post_data
-            if request.lower() == "post_data":
+            if endpoint.lower() == "post_data":
                 response = "accepted".encode("utf-8")
                 client_socket.send(response)
 
-                # Wait for request body from the client
-                while True:
-                    request = client_socket.recv(1024)
-                    request = request.decode("utf-8")
+                request_body = client_socket.recv(1024)
+                formatted_request_body = request_body.decode(
+                    "utf-8").split(',')
 
-                    # Process the request
-                    if request is not None:
-                        request_body = request.split(',')
-                        post_data(client_socket, request_body)
-                        break
+                post_data(client_socket, formatted_request_body)
 
-            if request.lower() == "close":
+            if endpoint.lower() == "close":
                 client_socket.send("closed".encode("utf-8"))
                 break
 
@@ -92,25 +77,28 @@ def calibrate(client_socket, data_list):
     for element, key in zip(data_list, key_list):
         data_dict[key] = element
 
-    response = requests.post(f"{URL}/calibrate", json=data_dict)
-    response_string = str(response.status_code)
-    message = response.json()
+    try:
+        response = requests.post(f"{URL}/calibrate", json=data_dict)
+        response_string = str(response.status_code)
+        message = response.json()
 
-    if message is not None:
-        response_string += f",{message['detail']['message']}"
+        if message is not None:
+            response_string += f",{message['detail']['message']}"
 
-    client_socket.send(response_string.encode('utf-8'))
+        client_socket.send(response_string.encode('utf-8'))
+    except Exception as e:
+        print(f"Error calibrating: {str(e)}")
+        client_socket.send("error".encode("utf-8"))
 
 
 def get_bid(client_socket, identifier):
-    # Make an HTTP POST request to obtain a bid
     try:
-        response = requests.get(
-            f"{URL}/bid/{identifier}", headers={'Accept': 'application/json'})
-        response = str(response.json()["bid"]).encode("utf-8")
-        client_socket.send(response)
+        response = requests.get(f"{URL}/bid/{identifier}")
+        response_string = str(response.json()["bid"])
+        client_socket.send(response_string.encode('utf-8'))
     except Exception as e:
         print(f"Error obtaining bid: {str(e)}")
+        client_socket.send("error".encode("utf-8"))
 
 
 def post_data(client_socket, data_list):
@@ -121,14 +109,18 @@ def post_data(client_socket, data_list):
     for element, key in zip(data_list, key_list):
         data_dict[key] = element
 
-    response = requests.post(f"{URL}/data", json=data_dict)
-    response_string = str(response.status_code)
-    message = response.json()
+    try:
+        response = requests.post(f"{URL}/data", json=data_dict)
+        response_string = str(response.status_code)
+        message = response.json()
 
-    if message is not None:
-        response_string += f",{message['detail']['message']}"
+        if message is not None:
+            response_string += f",{message['detail']['message']}"
 
-    client_socket.send(response_string.encode('utf-8'))
+        client_socket.send(response_string.encode('utf-8'))
+    except Exception as e:
+        print(f"Error posting data: {str(e)}")
+        client_socket.send("error".encode("utf-8"))
 
 
 def run_server():
