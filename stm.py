@@ -85,16 +85,6 @@ def handle_client(client_socket, client_address):
         print(f"Connection to {client_address} closed")
 
 
-def get_bid(client_socket, identifier):
-    # Make an HTTP POST request to obtain a bid
-    try:
-        response = requests.get(f"{URL}/bid/{identifier}", headers={'Accept': 'application/json'})
-        response = str(response.json()["bid"]).encode("utf-8")
-        client_socket.send(response)
-    except Exception as e:
-        print(f"Error obtaining bid: {str(e)}")
-
-
 def calibrate(client_socket, data_list):
     key_list = ['bid', 'max_height']
     data_dict = dict()
@@ -107,9 +97,20 @@ def calibrate(client_socket, data_list):
     message = response.json()
 
     if message is not None:
-        response_string += f",{message['message']}"
+        response_string += f",{message['detail']['message']}"
 
     client_socket.send(response_string.encode('utf-8'))
+
+
+def get_bid(client_socket, identifier):
+    # Make an HTTP POST request to obtain a bid
+    try:
+        response = requests.get(
+            f"{URL}/bid/{identifier}", headers={'Accept': 'application/json'})
+        response = str(response.json()["bid"]).encode("utf-8")
+        client_socket.send(response)
+    except Exception as e:
+        print(f"Error obtaining bid: {str(e)}")
 
 
 def post_data(client_socket, data_list):
@@ -125,7 +126,7 @@ def post_data(client_socket, data_list):
     message = response.json()
 
     if message is not None:
-        response_string += f",{message['message']}"
+        response_string += f",{message['detail']['message']}"
 
     client_socket.send(response_string.encode('utf-8'))
 
