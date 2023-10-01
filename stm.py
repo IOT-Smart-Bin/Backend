@@ -1,10 +1,13 @@
 import socket
 import threading
+import schemas
+import requests
 
 HOSTNAME = socket.gethostname()
 
 HOST = socket.gethostbyname(HOSTNAME)
 PORT = 5678
+URL = '13.229.60.73:8000/'
 
 def handle_client(client_socket, client_address):
     try:
@@ -44,6 +47,32 @@ def handle_client(client_socket, client_address):
     finally:
         client_socket.close()
         print(f"Connection to {client_address} closed")
+
+def calibrate(data_list):
+    key_list = ['bid','max_height']
+    data_dict = dict()
+    for element, key in zip(data_list, key_list):
+        data_dict[key] = element
+    response = requests.post(f"{URL}calibrate", json=data_dict)
+    response_string = str(response.status_code)
+    message = response.json()
+    if message is not None:
+        response_string+=f",{message['message']}"
+    return response_string
+
+def post_data(data_list):
+    key_list = ['bid','gas','weight','height','humidity_inside','humidity_outside','temperature']
+    data_dict = dict()
+    for element, key in zip(data_list, key_list):
+        data_dict[key] = element
+    response = requests.post(f"{URL}data", json=data_dict)
+    response_string = str(response.status_code)
+    message = response.json()
+    if message is not None:
+        response_string+=f",{message['message']}"
+    return response_string
+    
+    
 
 
 def run_server():
