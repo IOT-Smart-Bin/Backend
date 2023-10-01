@@ -53,7 +53,7 @@ def handle_client(client_socket, client_address):
                     # Process the request
                     if request is not None:
                         request_body = request.split(',')
-                        calibrate(client_socket, request_body)
+                        calibrate(client_socket = client_socket, data_list=request_body)
                         break
 
             # post_data
@@ -69,7 +69,7 @@ def handle_client(client_socket, client_address):
                     # Process the request
                     if request is not None:
                         request_body = request.split(',')
-                        post_data(client_socket, request_body)
+                        post_data(client_socket = client_socket, data_list=request_body)
                         break
 
             if request.lower() == "close":
