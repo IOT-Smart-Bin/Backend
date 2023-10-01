@@ -1,15 +1,21 @@
 import socket
 
-HOST = "127.0.0.1"  # The server's hostname or IP address (Update appropriately for testing)
+HOST = "192.168.1.44"  # The server's hostname or IP address (Update appropriately for testing)
 PORT = 5678  # The port used by the server
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
-
-    s.sendall(b"Hello, world")
-    data = s.recv(1024)
-
-    # Close the connection gracefully
-    s.sendall(b"close")
-
-print(f"Received {data!r}")
+    
+    # Send "endpoint" as the first message
+    s.sendall(b"get_bid")
+    
+    # Receive and process the response for "endpoint"
+    response = s.recv(1024)
+    print(f"Received response for 'get_bid': {response.decode('utf-8')}")
+    
+    # Send "request body" as the second message
+    s.sendall(b"identifier_demo_example")
+    
+    # Receive and process the response for "request"
+    response = s.recv(1024)
+    print(f"Received response for 'identifier_example': {response.decode('utf-8')}")
