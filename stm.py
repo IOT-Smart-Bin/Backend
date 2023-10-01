@@ -48,7 +48,7 @@ def handle_client(client_socket, client_address):
         client_socket.close()
         print(f"Connection to {client_address} closed")
 
-def calibrate(data_list):
+def calibrate(data_list, socket_client):
     key_list = ['bid','max_height']
     data_dict = dict()
     for element, key in zip(data_list, key_list):
@@ -58,9 +58,9 @@ def calibrate(data_list):
     message = response.json()
     if message is not None:
         response_string+=f",{message['message']}"
-    return response_string
+    socket_client.send(response_string.encode('utf-8'))
 
-def post_data(data_list):
+def post_data(data_list, socket_client):
     key_list = ['bid','gas','weight','height','humidity_inside','humidity_outside','temperature']
     data_dict = dict()
     for element, key in zip(data_list, key_list):
@@ -70,7 +70,7 @@ def post_data(data_list):
     message = response.json()
     if message is not None:
         response_string+=f",{message['message']}"
-    return response_string
+    socket_client.send(response_string.encode('utf-8'))
     
     
 
