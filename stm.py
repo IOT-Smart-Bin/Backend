@@ -81,7 +81,7 @@ def calibrate(client_socket, data_list):
         data_dict[key] = element
 
     try:
-        response = requests.post(f"{URL}/calibrate", json=data_dict)
+        response = requests.put(f"{URL}/calibrate", json=data_dict)
         response_string = str(response.status_code)
         message = response.json()
 
