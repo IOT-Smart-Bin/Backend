@@ -33,7 +33,8 @@ def handle_client(client_socket, client_address):
                 request_body = client_socket.recv(1024)
                 formatted_request_body = request_body.decode("utf-8")
 
-                get_bid(client_socket, formatted_request_body)
+                get_bid(client_socket=client_socket,
+                        identifier=formatted_request_body)
 
             # calibrate
             if endpoint.lower() == "calibrate":
@@ -44,7 +45,8 @@ def handle_client(client_socket, client_address):
                 formatted_request_body = request_body.decode(
                     "utf-8").split(',')
 
-                calibrate(client_socket, formatted_request_body)
+                calibrate(client_socket=client_socket,
+                          data_list=formatted_request_body)
 
             # post_data
             if endpoint.lower() == "post_data":
@@ -55,7 +57,8 @@ def handle_client(client_socket, client_address):
                 formatted_request_body = request_body.decode(
                     "utf-8").split(',')
 
-                post_data(client_socket, formatted_request_body)
+                post_data(client_socket=client_socket,
+                          data_list=formatted_request_body)
 
             if endpoint.lower() == "close":
                 client_socket.send("closed".encode("utf-8"))
