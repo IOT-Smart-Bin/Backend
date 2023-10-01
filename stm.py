@@ -57,7 +57,7 @@ def calibrate(data_list, socket_client):
     response_string = str(response.status_code)
     message = response.json()
     if message is not None:
-        response_string+=f",{message['message']}"
+        response_string+=f",{message['detail']['message']}"
     socket_client.send(response_string.encode('utf-8'))
 
 def post_data(data_list, socket_client):
@@ -69,7 +69,7 @@ def post_data(data_list, socket_client):
     response_string = str(response.status_code)
     message = response.json()
     if message is not None:
-        response_string+=f",{message['message']}"
+        response_string+=f",{message['detail']['message']}"
     socket_client.send(response_string.encode('utf-8'))
     
     
