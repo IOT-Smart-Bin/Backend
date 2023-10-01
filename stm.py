@@ -8,6 +8,11 @@ HOST = socket.gethostbyname(HOSTNAME)
 PORT = 5678
 URL = 'http://13.229.60.73:8000'
 
+# Create a list to keep track of active client threads
+active_threads = []
+# Track complete event for each thread
+thread_complete_event = threading.Event()
+
 
 def handle_client(client_socket, client_address):
     try:
@@ -21,7 +26,7 @@ def handle_client(client_socket, client_address):
             # If we want to avoid "[WinError 10053] An established connection was aborted by the software in your host machine," use the code below
 
             if not endpoint:
-                pass
+                break
 
             endpoint = endpoint.decode("utf-8")
 
@@ -71,6 +76,9 @@ def handle_client(client_socket, client_address):
     finally:
         client_socket.close()
         print(f"Connection to {client_address} closed")
+
+        # Set the thread_complete_event to notify the monitor_thread
+        thread_complete_event.set()
 
 
 def calibrate(client_socket, data_list):
@@ -126,11 +134,31 @@ def post_data(client_socket, data_list):
         client_socket.send("error".encode("utf-8"))
 
 
+def monitor_thread():
+    while True:
+        # Wait for the event to be set (a thread has completed its work)
+        thread_complete_event.wait()
+
+        # Clear the event
+        thread_complete_event.clear()
+
+        # Clean up threads that have finished their tasks
+        for thread in active_threads:
+            if not thread.is_alive():
+                print("Removed thread", thread)
+
+                thread.join()
+                active_threads.remove(thread)
+
 def run_server():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((HOST, PORT))
     server.listen(5)
     print(f"Listening on {HOST}:{PORT}")
+
+    client_thread = threading.Thread(
+        target=monitor_thread)
+    client_thread.start()
 
     while True:
         client_socket, client_address = server.accept()
@@ -141,6 +169,9 @@ def run_server():
         client_thread = threading.Thread(
             target=handle_client, args=(client_socket, client_address))
         client_thread.start()
+
+        # Add the thread to the active_threads list
+        active_threads.append(client_thread)
 
 
 if __name__ == "__main__":
